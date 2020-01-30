@@ -1,5 +1,5 @@
 
-co_sites = c(3,3,3,3)
+co_sites = c(3,5,3,2)
 mut_sites = c(2,1,4,5,3,2,3,2)
 co_prob = 0.6
 mut_prob = 0.1
