@@ -1,14 +1,15 @@
 
 co_sites = c(3,3,3,3)
-mut_sites = c()
+mut_sites = c(2,1,4,5,3,2,3,2)
 co_prob = 0.6
 mut_prob = 0.1
 
 population = c(13,24,8,19,18,7,23,25)
-
+  
 max_range = 28
 min_range = 0
 n = 5
+
 get_x_value <- function(x){
   return(min_range + (max_range-min_range)/((2^n)-1 ) * x)
 }
@@ -72,17 +73,49 @@ do_crossover <- function(binary_pop){
 }
 
 
-#Selection
-x_value = get_x_value(population)
-fx = obj_function(x_value)
-Fx = fx
-average_fitness = mean(Fx)
-Pi = get_pi_value(Fx)
-cum_Pi = cumsum(Pi)
-r_selection = runif(length(population))
-selected = selected_chromosomes(cum_Pi,r_selection)
-#CrossOver
-r_co = runif(length(population)/2)
-binary_pop = get_binary(population[selected])
-intermediate_population = do_crossover(binary_pop)
-#Mutation
+do_mutation <- function(intermediate_population){
+  generation = c()
+  mut_iter = 1
+  for(each in intermediate_population){
+    if(runif(1,min = 0, max=1) <= mut_prob){
+      if(substring(each,mut_sites[mut_iter],mut_sites[mut_iter]) == "0"){
+        var1 = paste(substring(each,1,mut_sites[mut_iter]-1),"1",substring(each,mut_sites[mut_iter]+1),sep = "")
+        generation = append(generation,var1)
+        #substring(each,mut_sites[mut_iter],mut_sites[mut_iter]) = "1"
+      } else{
+        var1 = paste(substring(each,1,mut_sites[mut_iter]-1),"0",substring(each,mut_sites[mut_iter]+1),sep = "")
+        generation = append(generation,var1)
+        #substring(each,mut_sites[mut_iter],mut_sites[mut_iter]) = "0"
+      }
+      
+    }
+    else{
+      generation = append(generation, each)
+    }
+    mut_iter = mut_iter + 1
+  }
+  return(generation)
+}
+
+
+avg_fitness_list = c()
+for(i in rep(1,500)){
+  #Selection
+  x_value = get_x_value(population)
+  fx = obj_function(x_value)
+  Fx = fx
+  average_fitness = mean(Fx)
+  Pi = get_pi_value(Fx)
+  cum_Pi = cumsum(Pi)
+  r_selection = runif(length(population))
+  selected = selected_chromosomes(cum_Pi,r_selection)
+  #CrossOver
+  r_co = runif(length(population)/2)
+  binary_pop = get_binary(population[selected])
+  intermediate_population = do_crossover(binary_pop)
+  #Mutation
+  population = do_mutation(intermediate_population)
+  population = strtoi(population, base=2)
+  avg_fitness_list = append(avg_fitness_list, average_fitness)
+}
+plot(avg_fitness_list)
